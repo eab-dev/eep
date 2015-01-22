@@ -274,11 +274,11 @@ class AttributeFunctions
                 // set multi-select versus single selection
                 if( 0 == trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezselection/is_multi_select" )->item( 0 )->nodeValue ) )
                 {
-                    $classAttribute->setAttribute( "data_int1", 1 );
+                    $classAttribute->setAttribute( "data_int1", 0 );
                 }
                 else
                 {
-                    $classAttribute->setAttribute( "data_int1", 0 );                
+                    $classAttribute->setAttribute( "data_int1", 1 );
                 }
                 break;
             
