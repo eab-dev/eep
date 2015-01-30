@@ -80,6 +80,28 @@ $AttributeFunctions_newAttributeXML = <<<AttributeFunctions_XML
             </default_selection_node>
         </ezobjectrelation>
 
+        <ezobjectrelationlist>
+            <!-- 0 = Browse, 1 = Drop-down list, 2 = List with radio buttons, 3 = List with checkboxes,
+                 4 = Multiple selection list, 5 = Template based, multi, 6 = Template based, single -->
+            <selection_type>
+                0
+            </selection_type>
+            <!-- 0 = New and existing objects, 1 = Only new objects, 2 = Only existing objects -->
+            <type>
+                false
+            </type>
+            <object_class>
+                false
+            </object_class>
+            <allowed_classes>
+                <class>Folder</class>
+                <class>Article</class>
+            </allowed_classes>
+            <!-- node id, url path, or "eep-no-content" -->
+            <default_placement>
+                eep-no-content
+            </default_placement>
+        </ezobjectrelationlist>
         <!-- not fully supported
         <ezmatrix>
             <default_row_count>
@@ -325,6 +347,64 @@ class AttributeFunctions
                             }
                         }
                     }
+                    $classAttribute->setContent( $content );
+                    $classAttribute->store();
+                }
+                break;
+
+            case "ezobjectrelationlist":
+                {
+                    $content = $classAttribute->content();
+                    // extract the xml
+                    $xmlValues = array
+                    (
+                        "selection_type"      => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/selection_type" )->item( 0 )->nodeValue )
+                        , "object_class"      => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/object_class" )->item( 0 )->nodeValue )
+                        , "type"              => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/type" )->item( 0 )->nodeValue )
+                        , "default_placement" => trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/default_placement" )->item( 0 )->nodeValue )
+                    );
+
+                    $allowedClassesList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezobjectrelationlist/allowed_classes/class" );
+
+                    $content[ "class_constraint_list" ] = array();
+
+                    for( $m = 0; $m < $allowedClassesList->length; $m++ ) {
+                        $classIdentifier = trim( $allowedClassesList->item( $m )->nodeValue );
+                        $contentClass = eZContentClass::fetchByIdentifier( $classIdentifier );
+                        if( !$contentClass ) {
+                            throw new Exception( "Failed to instantiate content class [" . $classIdentifier . "]" );
+                        }
+                        $content[ "class_constraint_list" ][] = $classIdentifier;
+                    }
+
+                    $content[ "selection_type" ] = $xmlValues[ "selection_type" ];
+
+                    $content[ "type" ] = false;
+                    if ( "false" != $xmlValues[ "type" ] ) {
+                        $content[ "type" ] = $xmlValues[ "type" ];
+                    }
+
+                    $content[ "object_class" ] = false;
+                    if ( "" != $xmlValues[ "object_class" ] ) {
+                        $contentClass = eZContentClass::fetchByIdentifier( $xmlValues[ "object_class" ] );
+                        if( !$contentClass ) {
+                            throw new Exception( "Failed to instantiate content class [" . $xmlValues[ "object_class" ] . "]" );
+                        }
+                        $content[ "object_class" ] = $contentClass->ID;
+                    }
+
+                    $content[ "default_placement" ] = false;
+                    if ( "eep-no-content" != $xmlValues[ "default_placement" ] ) {
+                        if( is_numeric( $xmlValues[ "default_placement" ] ) ) {
+                            $content[ "default_placement" ]["node_id"] = $xmlValues[ "default_placement" ];
+                        } else {
+                            $node = eZContentObjectTreeNode::fetchByURLPath( $xmlValues[ "default_placement" ] );
+                            if ( $node ) {
+                                $content[ "default_placement" ]["node_id"] = $node->attribute( "node_id" );
+                            }
+                        }
+                    }
+
                     $classAttribute->setContent( $content );
                     $classAttribute->store();
                 }
