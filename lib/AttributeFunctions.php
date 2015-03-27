@@ -244,7 +244,7 @@ class AttributeFunctions
                 $maxStringLength = (integer )trim( $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezstring/maxstringlength" )->item( 0 )->nodeValue );
                 if( $maxStringLength < 1 )
                 {
-                    $maxStringLength = 1;
+                    $maxStringLength = 0; // maxstringlength is not provided, eZ Publish behaviour is to be infinite
                 }
                 elseif( $maxStringLength > 255 )
                 {
