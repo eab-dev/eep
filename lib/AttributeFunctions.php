@@ -194,7 +194,7 @@ class AttributeFunctions
         $dataType = $newAttribute->dataType();
         if( !$dataType )
         {
-            throw new Exception( "Unknown datatype: [ " .$datatype. " ]" );
+            throw new Exception( "Unknown datatype: [ " . $xmlValues[ "datatypestring" ] . " ]" );
         }
         $dataType->initializeClassAttribute( $newAttribute );
         $newAttribute->store();
