@@ -278,7 +278,7 @@ class AttributeFunctions
                 $nodeList = $newAttributeXPath->query( "//newattribute/additional_for_specific_datatype/ezselection/options" );
                 $optionsNode = $nodeList->item( 0 );
                 $numberOfOptions = $optionsNode->childNodes->length;
-                if( 1 < $numberOfOptions )
+                if( 0 < $numberOfOptions )
                 {
                     for( $m=0; $m<$numberOfOptions; $m+=1 )
                     {
